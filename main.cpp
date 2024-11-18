@@ -2,55 +2,10 @@
 #include <fstream>
 #include <b15f/b15f.h>
 #include <vector>
-
-std::vector<char> sendenVorbereiten(char[], size_t);
-void senden(std::vector<char>);
-bool melden();
-
+std::vector<char> daten; 
 size_t prüfsumme = 101101 + 'n' + 6;
 
-class HW7 {
-	//Alles in eine Klasse einfügen?
-}
-
-int main() {
-
-    B15F & drv = B15F :: getInstance () ; //drv wird ein Objekt einer Klasse
-    drv.setRegister (& DDRA , 0x0f ) ;
-    
-    // Pfad zur Datei im 'data'-Ordner
-    std::string dateiname = "data/test.txt";
-
-    /* Öffnen der Datei im Binärmodus
-    std::ifstream file(dateiname, std::ios::binary);*/
-    std::ifstream file(dateiname);
-
-    // Überprüfen, ob die Datei erfolgreich geöffnet wurde
-    if (!file) {
-        std::cerr << "Die Datei konnte nicht geöffnet werden!" << std::endl;
-        return 1;
-    }
-
-    const size_t datenBreite = 64; // Anzahl der Zeichen, die auf einmal gelesen werden
-    char buffer[datenBreite+1];      // Buffer für das Lesen der Zeichen
-
-    while (file.read(buffer, datenBreite) || file.gcount() > 0) {
-
-        // Anzahl der tatsächlich gelesenen Zeichen (nützlich für den letzten Block)
-        size_t nibbleGelesen = file.gcount();
-
-        std::vector<char> sendeBlock= sendenVorbereiten(buffer, nibbleGelesen);
-        senden(sendeBlock);
-    }
-
-    // Datei schließen
-    file.close();
-
-    return 0;
-}
-
 std::vector<char> sendenVorbereiten(char buffer[], size_t nG){
-    std::vector<char> daten; 
    
     //A-Escape code, F-Startcode
     daten.push_back('A');
@@ -77,28 +32,10 @@ std::vector<char> sendenVorbereiten(char buffer[], size_t nG){
     //size_t y = std::strlen(buffer); für größe des buffers
     //prüfsumme = z / d;
     //daten.push_back(prüfsumme);
-    daten.push_back('77'); //-> in 1 Byte = 01110111
+    daten.push_back(77); //-> in 1 Byte = 01110111
     
     return daten;
-}
-
-void senden(std::vector<char> daten){
-
-    do
-    {
-        for(size_t i = 0; i < daten.size(); i++){
-
-            B15F & drv = B15F :: getInstance ();
-            drv.setRegister (& PORTA ,0x0 + daten.at(i));
-            std::cout<<daten.at(i);
-            drv.delay_ms(50);
-    }
-
-        std::cout<<"****************************"<<"\n";
-
-    } while (melden());
-}
-
+};
 bool melden(){
     
     B15F & drv = B15F :: getInstance ();
@@ -106,7 +43,65 @@ bool melden(){
         return false;
     }
     return true;
+};
+void senden(std::vector<char>){
+
+    do
+    {
+        for(size_t i = 0; i < daten.size(); i++){
+
+            B15F & drv = B15F :: getInstance ();
+            drv.setRegister(&DDRA, 0xff);
+            drv.setRegister (&PORTA ,0x00 + daten.at(i));
+            std::cout<<daten.at(i);
+            drv.delay_ms(50);
+    }
+
+        std::cout<<"****************************"<<"\n";
+
+    } while (melden());
+};
+
+int main() {
+
+    B15F & drv = B15F :: getInstance () ; //drv wird ein Objekt einer Klasse
+    drv.setRegister (& DDRA , 0x0f ) ;
+    
+    // Pfad zur Datei im 'data'-Ordner
+    std::string dateiname = "/home/kschunk/linuxhome/HWP_II/HWP7-main/Programm/src/test.txt";
+
+    /* Öffnen der Datei im Binärmodus
+    std::ifstream file(dateiname, std::ios::binary);*/
+    std::ifstream file(dateiname);
+
+    // Überprüfen, ob die Datei erfolgreich geöffnet wurde
+    if (!file) {
+        std::cerr << "Die Datei konnte nicht geöffnet werden!" << std::endl;
+        return 1;
+    }
+
+    const size_t datenBreite = 64; // Anzahl der Zeichen, die auf einmal gelesen werden
+    char buffer[datenBreite+1];      // Buffer für das Lesen der Zeichen
+
+    while (file.read(buffer, datenBreite) || file.gcount() > 0) {
+
+        // Anzahl der tatsächlich gelesenen Zeichen (nützlich für den letzten Block)
+        size_t nibbleGelesen = file.gcount();
+
+        std::vector<char> sendeBlock= sendenVorbereiten(buffer, nibbleGelesen);
+        senden(sendeBlock);
+    }
+
+    // Datei schließen
+    file.close();
+    return 0;
 }
+
+
+
+
+
+//melden();
 
 //Hinweis von Eric: CRC: Or , 1 Byte Daten mit 1 Byte Prüfsumme(z.B. 31) vergleichen, nach links Daten verschieben bei most sicnificant Bit um besonderen Code zu haben
 //also 1 links weg und 0 hinten dran
