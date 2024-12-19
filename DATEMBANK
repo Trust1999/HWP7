@@ -1,0 +1,76 @@
+--Aufgabe 1
+SELECT ename, job, sal salery
+FROM emp;
+
+--Aufgabe 2
+SELECT empno, enmae, sal * 12 "ANUAL SALARY"
+FROM emp;
+
+--Aufgabe 3
+desc dept;
+
+--Aufagabe 4
+SELECT ename, job, hiredate, empno
+FROM emp;
+
+--Aufgabe 6
+SELECT distinct job --oder unice job
+FROM emp;
+
+--Aufgabe 7
+SELECT ename, sal
+FROM emp
+WHERE sal > 2850;
+
+--Aufgabe 8
+SELECT ename, empno, deptno
+FROM emp
+WHERE empno = 7566;
+
+--Aufgabe 9
+SELECT ename, sal
+FROM emp
+WHERE sal not between 1500 and 2800; -- oder sal < 1500 or sal >2800
+
+--Aufgabe 10
+SELECT ename, job, hiredate
+FROM emp
+WHERE hiredate between '20.02.81' and '01.05.1981'
+order by hiredate;
+
+--Aufgabe 11
+SELECT ename, deptno
+FROM emp
+WHERE deptno = 30 or deptno = 10     --oder deptno in (10,30)
+order by ename;                      --oder mittels Union
+
+--Aufgabe 12
+SELECT ename, sal, deptno
+FROM emp
+WHERE sal > 1500 and deptno in (10,30);
+
+--Aufgabe 13
+SELECT ename, hiredate
+FROM emp
+WHERE hiredate between '01.01.1982' and '31.12.1982'; --oder hiredate like '%82'
+
+--Aufgabe 14
+SELECT ename, mgr
+FROM emp
+WHERE mgr is null;
+
+--Aufgabe 15
+SELECT ename, comm
+FROM emp
+WHERE comm is not null 
+order by sal desc, comm desc;
+
+--Aufgabe 16
+SELECT ename
+FROM emp
+WHERE ename like '__A%'; --oder WHERE substrig(ename,3,1) = 'A';
+
+--Aufgabe 17
+SELECT ename, deptno, mgr
+FROM emp
+WHERE ename like '%L%L%' and deptno = 30 or mgr = 7782;
